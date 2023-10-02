@@ -191,8 +191,11 @@ function draw() {
   }
 
   if (car1.overlap(car2)) {
-    car1.position.x -= 2;
-    car2.position.x += 2;
+    car1.position.x -= car1.velocity.x * 2;
+    car1.position.y -= car1.velocity.y * 2;
+
+    car2.position.x -= car2.velocity.x * 2;
+    car2.position.y -= car2.velocity.y * 2;
 
     car1.setSpeed(0.1);
     car2.setSpeed(0.1);
