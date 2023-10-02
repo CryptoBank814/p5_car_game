@@ -2,28 +2,29 @@ let track = [];
 let grassImage;
 let trackImage;
 let finishImage;
-let carImage;
-let start_x = 0;
+let carImage1;
+let carImage2;
+let start_x1 = 0;
+let start_x2 = 0;
 let start_y = 0;
 let grassGrp;
 let trackGrp;
-// let grassGrp = new Group();
-// let trackGrp = new Group();
 
 function preload() {
-  trackFile = loadStrings('https://thebjjmatrix.com/api/profile/get-belt')
-  grassImage = loadImage('images/grass.png'); // 0 = grass
-  trackImage = loadImage('images/track.png'); // 1 = track
-  finishImage = loadImage('images/finish.png'); // 2 = start/finish line
-  carImage = loadImage('images/car.png');
+  trackFile = loadStrings('http://95.217.51.146:5000/track.txt')
+  grassImage = loadImage('http://95.217.51.146:5000/grass.png'); // 0 = grass
+  trackImage = loadImage('http://95.217.51.146:5000/track.png'); // 1 = track
+  finishImage = loadImage('http://95.217.51.146:5000/finish.png'); // 2 = start/finish line
+  carImage1 = loadImage('http://95.217.51.146:5000/car.png'); // Player 1
+  carImage2 = loadImage('http://95.217.51.146:5000/car-blue.png'); // Player 2
 }
 
 function setup() {
-  createCanvas(310, 310);
+  createCanvas(610, 610);
   grassGrp = new Group();
   trackGrp = new Group();
   const track_length = 15;
-  const spriteSize = 20;
+  const spriteSize = 40;
 
   // You may need to resize your images to match your sprite dimensions
   grassImage.resize(spriteSize, spriteSize);
@@ -69,56 +70,97 @@ function setup() {
         trackGrp.add(spr);
       } else if (tile == '2') {
         spr.addImage(finishImage);
-        start_x = col * spriteSize + 15;
+        start_x1 = col * spriteSize + 5;
+        start_x2 = col * spriteSize + 25;
         start_y = row * spriteSize + 15;
       } else {
         console.log("no such tile");
       }
     }
   }
-  console.log(track);
-  console.log(grassGrp);
-  console.log(trackGrp);
+  // console.log(track);
+  // console.log(grassGrp);
+  // console.log(trackGrp);
 
-  carDraw();
+  car1Draw();
+  car2Draw();
 }
 
-function carDraw() {
-  car = createSprite(start_x, start_y);
-  car.scale = 0.8;
-  car.rotation = 270;
-  car.maxSpeed = 6;
-  car.friction = 0.02;
-  car.addImage(carImage);
-  car.rotateToDirection = true;
+function car1Draw() {
+  car1 = createSprite(start_x1, start_y);
+  car1.scale = 1;
+  car1.rotation = 270;
+  car1.maxSpeed = 6;
+  car1.friction = 0.02;
+  car1.addImage(carImage1);
+  car1.rotateToDirection = true;
+}
+
+function car2Draw() {
+  car2 = createSprite(start_x2, start_y);
+  car2.scale = 1;
+  car2.rotation = 270;
+  car2.maxSpeed = 6;
+  car2.friction = 0.02;
+  car2.addImage(carImage2);
+  car2.rotateToDirection = true;
 }
 
 function draw() {
   background(200);
 
+  // Car 1
+
   if (keyDown(LEFT_ARROW)) {
     // makes car go left of direction of motion
     // also rotates anticlockwise or to the left of direction of motion
-    car.setVelocity(0, 0);
-    car.rotation -= 2;
+    car1.setVelocity(0, 0);
+    car1.rotation -= 2;
   }
 
   if (keyDown(RIGHT_ARROW)) {
     // makes car go right of direction of motion
     // also rotates clockwise or to the right of direction of motion
-    car.setVelocity(0, 0);
-    car.rotation += 2;
+    car1.setVelocity(0, 0);
+    car1.rotation += 2;
 
   }
   if (keyDown(UP_ARROW)) {
     // setting +ve speed acts as accelerating
-    car.setSpeed(1);
+    car1.setSpeed(1);
     // need to find how to impose speed limit
   }
 
   if (keyDown(DOWN_ARROW)) {
     // setting speed 0 acts as braking - stops the car
-    car.setSpeed(0);
+    car1.setSpeed(0);
+  }
+
+  // Car 2
+
+  if (keyDown('A')) {
+    // makes car go left of direction of motion
+    // also rotates anticlockwise or to the left of direction of motion
+    car2.setVelocity(0, 0);
+    car2.rotation -= 2;
+  }
+
+  if (keyDown('D')) {
+    // makes car go right of direction of motion
+    // also rotates clockwise or to the right of direction of motion
+    car2.setVelocity(0, 0);
+    car2.rotation += 2;
+
+  }
+  if (keyDown('W')) {
+    // setting +ve speed acts as accelerating
+    car2.setSpeed(1);
+    // need to find how to impose speed limit
+  }
+
+  if (keyDown('S')) {
+    // setting speed 0 acts as braking - stops the car
+    car2.setSpeed(0);
   }
 
   drawSprites();
@@ -130,10 +172,30 @@ function draw() {
 
     another way - just redraw the car at its staring position
   */
-  if (car.overlap(grassGrp)) {
+  if (car1.overlap(grassGrp)) {
     //console.log("Car has gone onto the grass");
-    car.remove();
-    carDraw();
+    if (keyDown(UP_ARROW)) {
+      car1.setSpeed(0.1);
+    } else {
+      car1.setSpeed(0);
+    }
+  }
+  
+  if (car2.overlap(grassGrp)) {
+    //console.log("Car has gone onto the grass");
+    if (keyDown('W')) {
+      car2.setSpeed(0.1);
+    } else {
+      car2.setSpeed(0);
+    }
+  }
+
+  if (car1.overlap(car2)) {
+    car1.position.x -= 2;
+    car2.position.x += 2;
+
+    car1.setSpeed(0.1);
+    car2.setSpeed(0.1);
   }
 
 }
