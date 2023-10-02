@@ -10,6 +10,8 @@ let start_y = 0;
 let grassGrp;
 let trackGrp;
 
+const spriteSize = 40;
+
 function preload() {
   trackFile = loadStrings('http://95.217.51.146:5000/track.txt')
   grassImage = loadImage('http://95.217.51.146:5000/grass.png'); // 0 = grass
@@ -20,11 +22,9 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(610, 610);
+  createCanvas(600, 600);
   grassGrp = new Group();
   trackGrp = new Group();
-  const track_length = 15;
-  const spriteSize = 40;
 
   // You may need to resize your images to match your sprite dimensions
   grassImage.resize(spriteSize, spriteSize);
@@ -58,7 +58,7 @@ function setup() {
       and  location along y-axis is given by variable 'row'
       so when creating sprite the call is createSprite(col,row,...) 
       */
-      let spr = createSprite(col * spriteSize + 15, row * spriteSize + 15, spriteSize, spriteSize);
+      let spr = createSprite(col * spriteSize + spriteSize / 2, row * spriteSize + spriteSize / 2, spriteSize, spriteSize);
       spr.immovable = true;
       console.log('row\t', row, 'col\t', col, 'tile', tile);
 
@@ -70,9 +70,9 @@ function setup() {
         trackGrp.add(spr);
       } else if (tile == '2') {
         spr.addImage(finishImage);
-        start_x1 = col * spriteSize + 5;
-        start_x2 = col * spriteSize + 25;
-        start_y = row * spriteSize + 15;
+        start_x1 = col * spriteSize + 10;
+        start_x2 = col * spriteSize + 30;
+        start_y = row * spriteSize + 20;
       } else {
         console.log("no such tile");
       }
@@ -180,7 +180,7 @@ function draw() {
       car1.setSpeed(0);
     }
   }
-  
+
   if (car2.overlap(grassGrp)) {
     //console.log("Car has gone onto the grass");
     if (keyDown('W')) {
@@ -191,11 +191,13 @@ function draw() {
   }
 
   if (car1.overlap(car2)) {
-    car1.position.x -= car1.velocity.x * 2;
-    car1.position.y -= car1.velocity.y * 2;
-
-    car2.position.x -= car2.velocity.x * 2;
-    car2.position.y -= car2.velocity.y * 2;
+    if (car1.position.x < car2.position.x) {
+      car1.position.x -= 2;
+      car2.position.x += 2;
+    } else {
+      car1.position.x += 2;
+      car2.position.x -= 2;
+    }
 
     car1.setSpeed(0.1);
     car2.setSpeed(0.1);
